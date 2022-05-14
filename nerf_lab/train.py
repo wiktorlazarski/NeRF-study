@@ -1,3 +1,4 @@
+import datetime
 import os
 import typing as t
 import warnings
@@ -167,9 +168,10 @@ def main(cfg: omegaconf.DictConfig) -> None:
     logger.info("🚀 Training process STARTED!")
 
     logger.info("🌍 Setup train environment")
+    timestamp = datetime.datetime.now().strftime("%Y-%m-%d-%H-%M-%S")
     wandb.init(
         project=cfg.env.wandb_project_name,
-        name=cfg.env.wandb_run_name,
+        name=f"{cfg.env.wandb_run_name}-{timestamp}",
         entity="wiktorlazarski",
     )
     wandb.config = dict(cfg)
