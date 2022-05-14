@@ -1,5 +1,6 @@
 .DS_Store
 train_experiment/
+configs/train_experiment.yaml
 
 # Byte-compiled / optimized / DLL files
 __pycache__/
