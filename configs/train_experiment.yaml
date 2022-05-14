@@ -6,7 +6,7 @@ hydra:
 env:
   with_gpu: false
   wandb_project_name: nerf-study
-  wandb_run_name: test-run
+  wandb_run_name: test-run3
 
 scene:
   filepath: "/Users/wiktorlazarski/Desktop/my_project/nerf-study/data/tiny_nerf_data.npz"
@@ -22,4 +22,5 @@ training:
   lr: 0.005
   num_epochs: 100
   depth_samples_per_ray: 32
+  train_log_every_n_step: 10
   test_every_n_iterations: 10

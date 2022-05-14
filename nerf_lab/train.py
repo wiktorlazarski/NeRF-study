@@ -68,6 +68,7 @@ def run_one_iter_of_tinynerf(
 def train_step(
     *,
     epoch: int,
+    log_every_n_step: int,
     test_pose_idx: int,
     optimizer: torch.optim.Optimizer,
     device: torch.device,
@@ -112,10 +113,11 @@ def train_step(
     optimizer.step()
     optimizer.zero_grad()
 
-    psnr = -10.0 * torch.log10(loss)
+    if epoch % log_every_n_step == 0:
+        psnr = -10.0 * torch.log10(loss)
 
-    wandb.log({"train_loss": loss}, epoch)
-    wandb.log({"train_psnr": psnr}, epoch)
+        wandb.log({"train_loss": loss}, epoch)
+        wandb.log({"train_psnr": psnr}, epoch)
 
 
 def test_step(
@@ -213,6 +215,7 @@ def main(cfg: omegaconf.DictConfig) -> None:
     for epoch in range(cfg.training.num_epochs):
         train_step(
             epoch=epoch,
+            log_every_n_step=cfg.training.train_log_every_n_step,
             test_pose_idx=test_pose_idx,
             optimizer=optimizer,
             device=device,
