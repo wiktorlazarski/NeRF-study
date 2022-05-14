@@ -7,6 +7,7 @@ import matplotlib.pyplot as plt
 import numpy as np
 import omegaconf
 import torch
+import wandb
 from loguru import logger
 
 from nerf_lab import data_loading as dl
@@ -66,6 +67,7 @@ def run_one_iter_of_tinynerf(
 
 def train_step(
     *,
+    epoch: int,
     test_pose_idx: int,
     optimizer: torch.optim.Optimizer,
     device: torch.device,
@@ -110,9 +112,15 @@ def train_step(
     optimizer.step()
     optimizer.zero_grad()
 
+    psnr = -10.0 * torch.log10(loss)
+
+    wandb.log({"train_loss": loss}, epoch)
+    wandb.log({"train_psnr": psnr}, epoch)
+
 
 def test_step(
     *,
+    epoch: int,
     test_img: torch.Tensor,
     tiny_nerf: mdl.TinyNerfModel,
     chunksize: int,
@@ -141,11 +149,14 @@ def test_step(
     )
 
     loss = torch.nn.functional.mse_loss(rgb_predicted, test_img)
-
-    logger.info(f"Loss: {loss.item(): .8f}")
     psnr = -10.0 * torch.log10(loss)
 
+    logger.info(f"Test loss {epoch} => {loss.item(): .8f}")
+    wandb.log({"test_loss": loss}, epoch)
+    wandb.log({"test_psnr": psnr}, epoch)
+
     return rgb_predicted.detach(), psnr.item()
+
 
 @hydra.main(
     config_path=os.path.join(os.getcwd(), "configs"), config_name="train_experiment"
@@ -154,6 +165,13 @@ def main(cfg: omegaconf.DictConfig) -> None:
     logger.info("🚀 Training process STARTED!")
 
     logger.info("🌍 Setup train environment")
+    wandb.init(
+        project=cfg.env.wandb_project_name,
+        name=cfg.env.wandb_run_name,
+        entity="wiktorlazarski",
+    )
+    wandb.config = dict(cfg)
+
     seed = 9458
     torch.manual_seed(seed)
     np.random.seed(seed)
@@ -184,14 +202,17 @@ def main(cfg: omegaconf.DictConfig) -> None:
         num_encoding_functions=cfg.model.num_encoding_functions,
     )
     nerf_model.to(device)
+    wandb.watch(nerf_model)
 
     logger.info("🏋️‍♂️ Setup training loop")
     optimizer = torch.optim.Adam(nerf_model.parameters(), lr=cfg.training.lr)
 
     psnrs = []
+    test_epochs = []
     logger.info("🏋️‍♂️ Training loop")
-    for i in range(cfg.training.num_iters):
+    for epoch in range(cfg.training.num_epochs):
         train_step(
+            epoch=epoch,
             test_pose_idx=test_pose_idx,
             optimizer=optimizer,
             device=device,
@@ -211,8 +232,9 @@ def main(cfg: omegaconf.DictConfig) -> None:
             get_minibatches_function=dl.get_minibatches,
         )
 
-        if i % cfg.training.test_every_n_iterations == 0:
+        if epoch % cfg.training.test_every_n_iterations == 0:
             rendered_img, psnr = test_step(
+                epoch=epoch,
                 test_img=testimg,
                 tiny_nerf=nerf_model,
                 chunksize=cfg.scene.chunksize,
@@ -230,15 +252,19 @@ def main(cfg: omegaconf.DictConfig) -> None:
             )
 
             psnrs.append(psnr)
+            test_epochs.append(epoch)
 
-            plt.figure(figsize=(10, 4))
-            plt.subplot(121)
-            plt.imshow(rendered_img.cpu().numpy())
-            plt.title(f"Iteration {i}")
-            plt.subplot(122)
-            plt.plot(range(0, len(psnrs)), psnrs)
-            plt.title("PSNR")
-            plt.show()
+            fig, axis = plt.subplots(1, 3, figsize=(12, 4))
+            axis[0].imshow(rendered_img.cpu().numpy())
+            axis[0].set_title(f"Iteration {epoch}")
+
+            axis[1].plot(test_epochs, psnrs)
+            axis[1].set_title("PSNR")
+
+            axis[2].imshow(testimg.detach().cpu().numpy())
+            axis[2].set_title("Test scene pose")
+
+            wandb.log({"Test step": fig})
 
     logger.info("🏁 Training process FINISHED!")
 

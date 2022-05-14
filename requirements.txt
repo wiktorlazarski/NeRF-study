@@ -12,3 +12,4 @@ torch
 torchsearchsorted@git+https://github.com/aliutkus/torchsearchsorted
 torchvision
 tqdm
+wandb
