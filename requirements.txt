@@ -4,6 +4,7 @@ matplotlib
 numpy
 opencv-python-headless
 pandas
+loguru
 pytorch-lightning
 pyyaml
 seaborn
