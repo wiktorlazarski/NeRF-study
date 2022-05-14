@@ -1,8 +1,14 @@
 hydra-core
+imageio
 matplotlib
 numpy
+opencv-python-headless
 pandas
 pytorch-lightning
+pyyaml
 seaborn
+tensorboard
 torch
+torchsearchsorted@git+https://github.com/aliutkus/torchsearchsorted
 torchvision
+tqdm
