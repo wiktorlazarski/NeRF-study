@@ -268,6 +268,7 @@ def main(cfg: omegaconf.DictConfig) -> None:
             axis[2].set_title("Test scene pose")
 
             wandb.log({"Test step": fig})
+            plt.close("all")
 
     logger.info("🏁 Training process FINISHED!")
 
