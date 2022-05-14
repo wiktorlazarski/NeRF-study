@@ -3,12 +3,22 @@ hydra:
     dir: 'train_experiment/${now:%Y-%m-%d}/${now:%H-%M}'
   output_subdir: 'yamls'
 
-dataset_module:
-  batch_size: 4
-  num_workers: 2
+env:
+  with_gpu: false
+  display_every: 100
 
-nn_module:
-  lr: 0.0001
+scene:
+  filepath: "/Users/wiktorlazarski/Desktop/my_project/nerf-study/data/tiny_nerf_data.npz"
+  chunksize: 16384
+  near_thresh: 2.0
+  far_thresh: 6.0
+
+model:
+  hidden_dim: 128
+  num_encoding_functions: 6
 
 training:
-  max_epochs: 10
+  lr: 0.005
+  num_iters: 1000
+  depth_samples_per_ray: 32
+  test_every_n_iterations: 500

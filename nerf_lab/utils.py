@@ -29,8 +29,8 @@ def cumprod_exclusive(tensor: torch.Tensor) -> torch.Tensor:
         cumprod (torch.Tensor): cumprod of Tensor along dim=-1, mimiciking the functionality of
             tf.math.cumprod(..., exclusive=True) (see `tf.math.cumprod` for details).
     """
-    cumprod = torch.cumprod(tensor, dim=-1)
-    cumprod = torch.roll(cumprod, 1, dim=-1)
+    cumprod = torch.cumprod(tensor, -1)
+    cumprod = torch.roll(cumprod, 1, -1)
     cumprod[..., 0] = 1.0
 
     return cumprod
