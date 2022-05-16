@@ -20,7 +20,7 @@ model:
 
 training:
   lr: 0.0003
-  num_epochs: 1000
+  num_epochs: 1001
   depth_samples_per_ray: 32
-  train_log_every_n_step: 10
-  test_every_n_iterations: 10
+  train_log_every_n_step: 50
+  test_every_n_iterations: 50
