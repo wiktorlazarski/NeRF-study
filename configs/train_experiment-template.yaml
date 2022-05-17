@@ -16,11 +16,11 @@ scene:
 
 model:
   hidden_dim: 128
-  num_encoding_functions: 10
+  num_encoding_functions: 6
 
 training:
   lr: 0.0003
-  num_epochs: 1001
-  depth_samples_per_ray: 32
+  num_epochs: 10001
+  depth_samples_per_ray: 128
   train_log_every_n_step: 50
   test_every_n_iterations: 50
