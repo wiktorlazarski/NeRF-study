@@ -274,6 +274,10 @@ def main(cfg: omegaconf.DictConfig) -> None:
 
     logger.info("🏁 Training process FINISHED!")
 
+    logger.info("Dumping model")
+    torch.save(nerf_model.state_dict(), cfg.training.model)
+
+
 
 if __name__ == "__main__":
     warnings.filterwarnings("ignore", category=UserWarning)
