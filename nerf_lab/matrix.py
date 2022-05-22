@@ -53,6 +53,6 @@ def transform_matrix(*,
         x: float = 0, y: float = 0, z: float = 0) -> torch.Tensor:
 
     rotation = rotation_matrix(alpha=alpha, beta=beta, gamma=gamma)
-    translation = transform_matrix(x=x, y=y, z=z)
+    translation = translation_matrix(x=x, y=y, z=z)
 
     return torch.matmul(rotation, translation)

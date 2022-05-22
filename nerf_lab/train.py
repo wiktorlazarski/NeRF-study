@@ -193,7 +193,7 @@ def main(cfg: omegaconf.DictConfig) -> None:
     height, width = images.shape[1:3]
 
     # Hold one image out (for test).
-    test_pose_idx = 101
+    test_pose_idx = 0
     testimg, testpose = images[test_pose_idx], tform_cam2world[test_pose_idx]
     testimg = torch.from_numpy(testimg).to(device)
 
