@@ -19,6 +19,7 @@ model:
   num_encoding_functions: 6
 
 training:
+  model: "model.ckpt"
   lr: 0.0003
   num_epochs: 10001
   depth_samples_per_ray: 128
