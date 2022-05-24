@@ -11,6 +11,7 @@ import numpy as np
 import torch
 from omegaconf import OmegaConf
 from loguru import logger
+import imageio
 
 def main():
     parser = argparse.ArgumentParser("animate")
@@ -23,6 +24,8 @@ def main():
     parser.add_argument("--beta_rotation_angle", type=float, help="Rotation angle in degrees", default=0)
     parser.add_argument("--gamma_rotation_angle", type=float, help="Rotation angle in degrees", default=0)
     parser.add_argument("--config", type=str, help="Path to config file", required=True)
+    parser.add_argument("--render_output", type=str, default=None, help="Path to save rendered frames")
+    parser.add_argument("--render_frames", type=int, default=None, help="Render N frames")
 
     args = parser.parse_args()
     config = OmegaConf.load(args.config)
@@ -47,6 +50,7 @@ def main():
          num_encoding_functions=config.model.num_encoding_functions)
 
     frame = 0
+    frames = []
     plt.ion()
     plt.show()
 
@@ -82,15 +86,20 @@ def main():
             del rgb_predicted
             pose = torch.matmul(transform_matrix, pose)
 
+            if args.render_frames is not None and args.render_frames == frame:
+                break
+
+            if args.render_output is not None:
+                frames.append(np.array(img * 255., dtype=np.uint8))
+
         except KeyboardInterrupt:
             break
 
+    if args.render_output is not None:
+        logger.info("Saving frames to GIF")
+        imageio.mimsave(args.render_output, frames)
+
     logger.info("Shutting down")
-
-
-
-
-
 
 if __name__ == "__main__":
     main()

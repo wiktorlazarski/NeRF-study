@@ -76,7 +76,7 @@ def main():
 
     for name in tqdm(image_names):
         path = os.path.join(images_dir, name)
-        image = Image.open(path))
+        image = Image.open(path)
         image = image.resize(size)
         image = np.array(image) / 255.
         images.append(np.array(image, dtype=np.float32))
